@@ -8,21 +8,34 @@
 ;; uitgevoerd wordt met uiop:run-program.
 
 ;; TODO: Daadwerkelijk de hele regel na het uitroepteken de stream
-;; laten worden. Nu wordt alleen datgene dat direct na het
-;; uitroepteken staat het stream-argument van command-reader.
+;; laten worden zolang de stream niet begint met "("
+;; Nu wordt alleen datgene dat direct na het uitroepteken staat het
+;; stream-argument van command-reader.
 
 
+
+(defun list-in-stream-p (stream)
+  (if (equal (read-char stream) #\()
+      (progn
+	(unread-char #\( stream)
+	T)
+      (progn
+	(unread-char #\( stream)
+	'nil)))
 
 (defun command-reader (stream char)
   (declare (ignore char))
-  (setf (readtable-case *readtable*) :preserve)
+  (if (list-in-stream-p stream) ;; Als er een lijst in de stream zit
+      (setf (readtable-case *readtable*) :upcase) ;; de stream inlezen als hoofdletters
+      (setf (readtable-case *readtable*) :preserve)) ;; anders de stream behouden zoals die binnenkwam
   (let ((orig-rtable-case (readtable-case *readtable*))
 	(read-stream (read stream t nil t)))
     (return-from command-reader (list (quote values) (list (quote uiop:run-program) (string
-										     (if (equal (type-of read-stream) 'cons) ;; Als er een lijst volgt na het uitroepteken, 
-										     (eval read-stream) ;; de ingelezen stream evalueren.
-										     read-stream)) ;; Anders de ingelezen stream zo gebruiken
-				      :output :string)))
-  (setf (readtable-case *readtable*) orig-rtable-case)))
+										     (if (equal (readtable-case *readtable*) :upcase) ;; Op basis van de vorige check (list-in-stream-p) 
+												(eval read-stream) ;; ofwel de ingelezen stream uitvoeren als die met een lijst begint
+												read-stream)) ;; of de ingelezen stream zo gebruiken
+										     :output :string)))
+      (setf (readtable-case *readtable*) orig-rtable-case)))
+
 
 (set-macro-character #\! (function command-reader))
