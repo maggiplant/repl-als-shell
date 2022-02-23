@@ -8,9 +8,11 @@
 ;; uitgevoerd wordt met uiop:run-program.
 
 ;; TODO: Daadwerkelijk de hele regel na het uitroepteken de stream
-;; laten worden zolang de stream niet begint met "("
+;; laten worden zolang de stream niet begint met "(".
 ;; Nu wordt alleen datgene dat direct na het uitroepteken staat het
 ;; stream-argument van command-reader.
+
+;; TODO: Ook output met een foutmelding zou door moeten komen
 
 
 
@@ -34,7 +36,7 @@
 										     (if (equal (readtable-case *readtable*) :upcase) ;; Op basis van de vorige check (list-in-stream-p) 
 												(eval read-stream) ;; ofwel de ingelezen stream uitvoeren als die met een lijst begint
 												read-stream)) ;; of de ingelezen stream zo gebruiken
-										     :output :string)))
+										     :output :string :ignore-error-status t)))
       (setf (readtable-case *readtable*) orig-rtable-case)))
 
 
