@@ -15,14 +15,14 @@
 
 (defun command-reader (stream char)
   (declare (ignore char))
+  (setf (readtable-case *readtable*) :preserve)
   (let ((orig-rtable-case (readtable-case *readtable*))
 	(read-stream (read stream t nil t)))
-    (setf (readtable-case *readtable*) :preserve)
     (return-from command-reader (list (quote values) (list (quote uiop:run-program) (string
-										     (if (equal (type-of read-stream 'cons)) ;; Als er een lijst volgt na het uitroepteken, 
-												(eval read-stream) ;; de ingelezen stream evalueren.
-												read-stream)) ;; Anders de ingelezen stream zo gebruiken
-							   :output :string)))
-    (setf (readtable-case *readtable*) orig-rtable-case)))
+										     (if (equal (type-of read-stream) 'cons) ;; Als er een lijst volgt na het uitroepteken, 
+										     (eval read-stream) ;; de ingelezen stream evalueren.
+										     read-stream)) ;; Anders de ingelezen stream zo gebruiken
+				      :output :string)))
+  (setf (readtable-case *readtable*) orig-rtable-case)))
 
 (set-macro-character #\! (function command-reader))
