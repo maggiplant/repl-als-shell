@@ -7,13 +7,7 @@
 ;; wordt stream in command-reader en daarmee een sh-commando dat
 ;; uitgevoerd wordt met uiop:run-program.
 
-;; TODO: Daadwerkelijk de hele regel na het uitroepteken de stream
-;; laten worden zolang de stream niet begint met "(".
-;; Nu wordt alleen datgene dat direct na het uitroepteken staat het
-;; stream-argument van command-reader.
-
 ;; TODO: Ook output met een foutmelding zou door moeten komen
-
 
 
 (defun list-in-stream-p (stream)
@@ -25,18 +19,29 @@
 	(unread-char #\( stream)
 	'nil)))
 
+
+(defun read-entire-stream (stream &optional entire-stream)
+  ;; Deze functie moet alles lezen wat na ! komt, maar werkt nog niet goed.
+  ;; Wordt een spatie misschien gezien als eof?
+  (let ((char-temp-storage (read-char stream 'nil :eof t)))
+  (if (or (equal char-temp-storage #\newline) (equal char-temp-storage :eof))
+      (read-from-string entire-stream)
+      (read-entire-stream stream (concatenate 'string entire-stream (string char-temp-storage))))))
+
+
 (defun command-reader (stream char)
   (declare (ignore char))
   (if (list-in-stream-p stream) ;; Als er een lijst in de stream zit
       (setf (readtable-case *readtable*) :upcase) ;; de stream inlezen als hoofdletters
       (setf (readtable-case *readtable*) :preserve)) ;; anders de stream behouden zoals die binnenkwam
   (let ((orig-rtable-case (readtable-case *readtable*))
-	(read-stream (read stream t nil t)))
+	(read-stream (read-entire-stream stream)))
+    (print read-stream)
     (return-from command-reader (list (quote values) (list (quote uiop:run-program) (string
 										     (if (equal (readtable-case *readtable*) :upcase) ;; Op basis van de vorige check (list-in-stream-p) 
 												(eval read-stream) ;; ofwel de ingelezen stream uitvoeren als die met een lijst begint
 												read-stream)) ;; of de ingelezen stream zo gebruiken
-										     :output :string :ignore-error-status t)))
+										     :output :string :ignore-error-status 'nil)))
       (setf (readtable-case *readtable*) orig-rtable-case)))
 
 
