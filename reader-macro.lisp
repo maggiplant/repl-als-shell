@@ -18,13 +18,11 @@
   (let ((orig-rtable-case (readtable-case *readtable*))
 	(read-stream (read stream t nil t)))
     (setf (readtable-case *readtable*) :preserve)
-    (if (equal (type-of read-stream) 'cons) ;; Als er een lijst volgt
-	;; na het uitroepteken, de read-stream evalueren
-	(return-from command-reader (list (quote values) (list (quote
-								uiop:run-program)
-							       (string (eval read-stream)) :output :string)))
-	(return-from command-reader (list (quote values) (list (quote uiop:run-program) (string read-stream) :output :string))))
-    
+    (return-from command-reader (list (quote values) (list (quote uiop:run-program) (string
+										     (if (equal (type-of read-stream 'cons))
+												(eval read-stream)
+												read-stream))
+							   :output :string)))
     (setf (readtable-case *readtable*) orig-rtable-case)))
 
 (set-macro-character #\! (function command-reader))
