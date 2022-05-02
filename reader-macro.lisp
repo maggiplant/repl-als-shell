@@ -35,7 +35,7 @@
   (let ((char (read-char stream 'nil :eof t)))
     (if (or (equal char #\newline)
 	    (equal char :eof))
-	(or stream-as-string "error 1")
+	(or stream-as-string "")
 	(read-entire-stream stream (concatenate 'string
 						(or stream-as-string "")
 						(string char))))))
