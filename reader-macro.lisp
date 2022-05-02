@@ -115,7 +115,7 @@
 	    (equal char :eof))
 	(or stream-as-string "error 1")
 	(read-entire-stream stream (concatenate 'string
-						(or stream-as-string "error 2")
+						(or stream-as-string "")
 						(string char))))))
 
 (defun command-reader (stream char)
