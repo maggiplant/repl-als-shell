@@ -42,18 +42,18 @@
 
 (defun command-reader (stream char)
   (declare (ignore char))
-  (if (list-in-stream-p stream) ;; Als er een lijst in de stream zit
-      (setf (readtable-case *readtable*) :upcase) ;; de stream inlezen als hoofdletters
-      (setf (readtable-case *readtable*) :preserve)) ;; anders de stream behouden zoals die binnenkwam
-  (let ((orig-rtable-case (readtable-case *readtable*))
-	(read-stream (read-entire-stream stream))) ;; "read-stream" als in "ingelezen stream"
-    (print read-stream)
-    (return-from command-reader (list (quote values) (list (quote uiop:run-program) (string
-										     (if (equal (readtable-case *readtable*) :upcase) ;; Op basis van de vorige check (list-in-stream-p) 
-											 (eval read-stream) ;; ofwel de ingelezen stream uitvoeren als die met een lijst begint
-											 read-stream)) ;; of de ingelezen stream zo gebruiken
-							   :output :string :ignore-error-status 'nil)))
-    (setf (readtable-case *readtable*) orig-rtable-case)))
+  (let ((orig-rtable-case (readtable-case *readtable*)))
+    (if (list-in-stream-p stream) ;; Als er een lijst in de stream zit
+	(setf (readtable-case *readtable*) :upcase) ;; de stream inlezen als hoofdletters
+	(setf (readtable-case *readtable*) :preserve)) ;; anders de stream behouden zoals die binnenkwam
+    (let ((read-stream (read-entire-stream stream))) ;; "read-stream" als in "ingelezen stream"
+      (print read-stream)
+      (return-from command-reader (list (quote values) (list (quote uiop:run-program) (string
+										       (if (equal (readtable-case *readtable*) :upcase) ;; Op basis van de vorige check (list-in-stream-p) 
+											   (eval (read-from-string read-stream)) ;; ofwel de ingelezen stream uitvoeren als die met een lijst begint
+											   read-stream)) ;; of de ingelezen stream zo gebruiken
+							     :output :string :ignore-error-status 'nil)))
+      (setf (readtable-case *readtable*) orig-rtable-case))))
 
 
 (set-macro-character #\! (function command-reader))
