@@ -8,7 +8,9 @@
 ;; uitgevoerd wordt met uiop:run-program.
                      
 ;; TODO: Ook output met een foutmelding zou door moeten komen
-                     
+
+(in-package (make-package :repl-als-shell))
+
 
 (defun list-in-stream-p (stream)
   (let ((readchar (read-char stream))) ;; read-char stopt het gelezen karakter in een variabele met dezelfde naam
