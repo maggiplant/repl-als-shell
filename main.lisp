@@ -9,7 +9,7 @@
                      
 ;; TODO: Ook output met een foutmelding zou door moeten komen
 
-(in-package (make-package :repl-als-shell))
+(in-package :repl-als-shell)
 
 
 (defun list-in-stream-p (stream)
