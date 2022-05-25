@@ -11,13 +11,14 @@
                      
 
 (defun list-in-stream-p (stream)
-  (if (equal (read-char stream) #\()
-      (progn
-	(unread-char #\( stream)
-	T)
-      (progn
-	(unread-char #\( stream)
-	'nil)))
+  (let ((readchar (read-char stream))) ;; read-char stopt het gelezen karakter in een variabele met dezelfde naam
+    (if (equal readchar #\()
+	(progn
+	  (unread-char readchar stream)
+	  T)
+	(progn
+	  (unread-char readchar stream)
+	  'nil))))
 
 
 ;; (defun read-entire-stream (stream &optional entire-stream)
