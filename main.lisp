@@ -43,8 +43,8 @@
 						(or stream-as-string "")
 						(string char))))))
 
-(defun command-reader (stream char)
-  (declare (ignore char))
+(defun command-reader (stream macro-char-one macro-char-two)
+  (declare (ignore macro-char-one macro-char-two))
   (let ((orig-rtable-case (readtable-case *readtable*)))
     (if (list-in-stream-p stream) ;; Als er een lijst in de stream zit
 	(setf (readtable-case *readtable*) :upcase) ;; de stream inlezen als hoofdletters
@@ -59,4 +59,5 @@
       (setf (readtable-case *readtable*) orig-rtable-case))))
 
 
-(set-macro-character #\! (function command-reader))
+;(set-macro-character #\! (function command-reader))
+(set-dispatch-macro-character #\# #\! (function command-reader) )
