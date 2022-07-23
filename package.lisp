@@ -1,3 +1,4 @@
 ;;;; package.lisp
 
-(defpackage :repl-als-shell)
+(defpackage :repl-als-shell
+  (:use :cl))
